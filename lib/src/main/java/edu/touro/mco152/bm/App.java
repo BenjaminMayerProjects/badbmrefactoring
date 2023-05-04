@@ -16,7 +16,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Primary class for global variables, main and common methods.
+ * Contains the main runnable method of the program.
+ * Primary holder of global variables.
+ * Responsible for changing properties configurations.
+ * Initiates the custom  benchmark interface handling class, which one depending on
+ * user requests. {@link DiskWorker}
  */
 public class App {
 
@@ -82,7 +86,7 @@ public class App {
     /**
      * Get the version from the build properties. Defaults to 0.0 if not found.
      *
-     * @return
+     * @return a String set to the proper version number
      */
     public static String getVersion() {
         Properties bp = new Properties();
@@ -243,6 +247,9 @@ public class App {
         worker.cancel(true);
     }
 
+    /**
+     * Handles benchmark and GUI configuration/management when a benchmark is started.
+     */
     public static void startBenchmark() {
 
         //1. check that there isn't already a worker in progress
@@ -336,6 +343,10 @@ public class App {
         return (long) blockSizeKb * numOfBlocks * numOfMarks;
     }
 
+    /**
+     * Uses a DiskMark {@link DiskMark} Object to update the metrics of the App while it is running
+     * @param mark- A DiskMark Object which swill be used to update the Metric
+     */
     public static void updateMetrics(DiskMark mark) {
         if (mark.type == DiskMark.MarkType.WRITE) {
             if (wMax == -1 || wMax < mark.getBwMbSec()) {

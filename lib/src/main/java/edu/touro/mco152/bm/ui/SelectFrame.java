@@ -5,7 +5,13 @@ import edu.touro.mco152.bm.App;
 import java.io.File;
 
 /**
+ * @author Eli <p>
+ * This class specifies the data location functionality provided with in the GUI.
+ * The declaration:<p>{@code private javax.swing.JFileChooser jFileChooser1;}</p>
+ * has the purpose to eventually determine which file the user selected.
  *
+ * @see javax.swing.JFileChooser
+ * @see javax.swing.JFrame
  */
 public class SelectFrame extends javax.swing.JFrame {
 
@@ -59,6 +65,17 @@ public class SelectFrame extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    /**
+     * This method has a case for both approving and canceling any given selection.
+     * If case is "ApproveSelection", get selected files, set the properties with
+     * the location directory, and pass the location directory to set the location
+     * used by the Gui mainframe. In any case, set the instance of this surrounding class
+     * to visible and release all appropriate native screen resources.
+     *
+     * @see MainFrame
+     * @param evt - the ActionEvent taken in for identifying if the user approves or cancels selection
+     */
 
     private void jFileChooser1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jFileChooser1ActionPerformed
         // TODO add your handling code here:

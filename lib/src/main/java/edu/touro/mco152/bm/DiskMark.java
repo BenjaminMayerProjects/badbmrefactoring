@@ -3,9 +3,11 @@ package edu.touro.mco152.bm;
 import java.text.DecimalFormat;
 
 /**
- * Tracks and records progress as a disk read or write is being executed
+ * Tracks and records progress as a disk read or write is being executed.
+ * Contains data fields related to the current benchmark with appropriate setter and getter methods.
  */
 public class DiskMark {
+
 
     static DecimalFormat df = new DecimalFormat("###.###");
     MarkType type;
@@ -14,10 +16,16 @@ public class DiskMark {
     private double cumMin = 0;
     private double cumMax = 0;
     private double cumAvg = 0;
+
     DiskMark(MarkType type) {
         this.type = type;
     }
 
+    /**
+     * Returns a human-readable string of a description of the benchmark results, including the benchmark type,
+     * (read or write), the number of benchmarks done, the total time elapsed and the average speed of the benchmarks.
+     * @return a string description of the results of the benchmark
+     */
     @Override
     public String toString() {
         return "Mark(" + type + "): " + getMarkNum() + " bwMbSec: " + getBwMbSecAsString() + " avg: " + getAvgAsString();

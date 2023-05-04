@@ -9,9 +9,13 @@ import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Provides utility methods for jDiskMark
+ * @author Eli <p>
+ * This class provides utility methods for jComponentMark
  * to easily generate and analyze data, and to
- * conduct various functions to directories and files
+ * conduct various functions to directories and files.
+ * Supporting Linux OS, Mac OS X, and Windows OS; this class
+ * is quite versatile and also handles the case if OS happens to be unsupported.
+ *
  */
 public class Util {
 
@@ -223,7 +227,14 @@ public class Util {
         }
         return "Unknown-Device-size for: " + devicePath;
     }
-
+    /**
+     * On Mac OS X get the device path when given a file path.
+     * @example filePath = /User/eli/Desktop/jDiskMarkData
+     * devicePath = /dev/sda
+     *
+     * @param path the file path
+     * @return the device path
+     */
     static public String getDeviceFromPathOSX(Path path) {
         try {
             Process p = Runtime.getRuntime().exec("df " + path.toString());

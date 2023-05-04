@@ -13,8 +13,9 @@ import org.eclipse.persistence.exceptions.DatabaseException;
 
 /**
  * Provides a static factory method for EntityManager objects.
- * This Entity Manager can get and set data from multiple
- * disk tests that were done.
+ * This Entity Manager can retrieve and persist data from multiple
+ * disk tests that have been completed, persist this data between benchmarks and enable
+ * continuous persistence, even after the program has exited.
  *
  * @author James
  */

@@ -21,7 +21,7 @@ import static edu.touro.mco152.bm.DiskMark.MarkType.WRITE;
 
 /**
  * Run the disk benchmarking as a Swing-compliant thread (only one of these threads can run at
- * once.) Cooperates with Swing to provide and make use of interim and final progress and
+ * once.) Can cooperate with Swing and other forms of user interface to provide and make use of interim and final progress and
  * information, which is also recorded as needed to the persistence store, and log.
  * <p>
  * Depends on static values that describe the benchmark to be done having been set in App and Gui classes.
@@ -29,10 +29,10 @@ import static edu.touro.mco152.bm.DiskMark.MarkType.WRITE;
  * while the DiskMark class described each iteration's result, which is displayed by the UI as the benchmark run
  * progresses.
  * <p>
- * This class only knows how to do 'read' or 'write' disk benchmarks. It is instantiated by the
+ * This class only knows how to do 'read' or 'write' disk benchmarks, all of which is done in doInBackground(). It is instantiated by the
  * startBenchmark() method.
  * <p>
- * To be Swing compliant this class extends SwingWorker and declares that its final return (when
+ * To be Swing compliant this class extends SwingWorker and is dependent on it. It declares that its final return (when
  * doInBackground() is finished) is of type Boolean, and declares that intermediate results are communicated to
  * Swing using an instance of the DiskMark class.
  */
@@ -41,7 +41,8 @@ public class DiskWorker extends SwingWorker<Boolean, DiskMark> {
 
     // Record any success or failure status returned from SwingWorker (might be us or super)
     Boolean lastStatus = null;  // so far unknown
-
+    //callable copy/paste
+    //
     @Override
     protected Boolean doInBackground() throws Exception {
 
@@ -305,6 +306,11 @@ public class DiskWorker extends SwingWorker<Boolean, DiskMark> {
     }
 
 
+    /**
+     * Called when doInBackGround method of SwingWorker successfully or unsuccessfully finishes or is aborted.
+     * This method is called by Swing and has access to the get method within it's scope, which returns the computed
+     * result of the doInBackground method.
+     */
     @Override
     protected void done() {
         // Obtain final status, might from doInBackground ret value, or SwingWorker error
