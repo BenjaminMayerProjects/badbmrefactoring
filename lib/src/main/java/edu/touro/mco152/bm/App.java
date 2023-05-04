@@ -19,7 +19,8 @@ import java.util.logging.Logger;
  * Contains the main runnable method of the program.
  * Primary holder of global variables.
  * Responsible for changing properties configurations.
- * Initiates the custom Swing benchmark handling class. {@link DiskWorker}
+ * Initiates the custom  benchmark interface handling class, which one depending on
+ * user requests. {@link DiskWorker}
  */
 public class App {
 

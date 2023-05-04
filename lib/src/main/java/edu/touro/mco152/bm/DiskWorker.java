@@ -41,7 +41,8 @@ public class DiskWorker extends SwingWorker<Boolean, DiskMark> {
 
     // Record any success or failure status returned from SwingWorker (might be us or super)
     Boolean lastStatus = null;  // so far unknown
-
+    //callable copy/paste
+    //
     @Override
     protected Boolean doInBackground() throws Exception {
 
