@@ -22,11 +22,12 @@ import java.util.logging.Logger;
  * Initiates the custom  benchmark interface handling class, which one depending on
  * user requests. {@link DiskWorker}
  */
-public class App {
+public class App  {
 
     public static final String APP_CACHE_DIR = System.getProperty("user.home") + File.separator + ".jDiskMark";
     public static final String PROPERTIESFILE = "jdm.properties";
     public static final String DATADIRNAME = "jDiskMarkData";
+
     public static final int MEGABYTE = 1024 * 1024;
     public static final int KILOBYTE = 1024;
     public static final int IDLE_STATE = 0;
@@ -49,7 +50,7 @@ public class App {
     public static int numOfMarks = 25;      // desired number of marks
     public static int numOfBlocks = 32;     // desired number of blocks
     public static int blockSizeKb = 512;    // size of a block in KBs
-    public static DiskWorker worker = null;
+    public static UserExperienceInterface worker = null;
     public static int nextMarkNumber = 1;   // number of the next mark
     public static double wMax = -1, wMin = -1, wAvg = -1;
     public static double rMax = -1, rMin = -1, rAvg = -1;
@@ -244,7 +245,7 @@ public class App {
             msg("worker is null abort...");
             return;
         }
-        worker.cancel(true);
+        worker.cancelUI(true);
     }
 
     /**
@@ -270,8 +271,16 @@ public class App {
         Gui.mainFrame.adjustSensitivity();
 
         //4. set up disk worker thread and its event handlers
-        worker = new DiskWorker();
-        worker.addPropertyChangeListener((final PropertyChangeEvent event) -> {
+        /**
+         * Critical portion of DIP refactoring: In this startup of the benchmark, we
+         * plug into worker one of our UserExperienceInterface implementations,
+         * in this case, Swing, and then plug into the Swing implementation our newly
+         * Callable DiskWorker. This keeps DiskWorker and Swing conceptually totally separate,
+         * and instead both are independently called by our App
+         */
+        worker = new SwingWorkerUI();
+        worker.setCallable(new DiskWorker(new SwingWorkerUI()));
+        worker.addPropertyChangeListenerUI((final PropertyChangeEvent event) -> {
             switch (event.getPropertyName()) {
                 case "progress":
                     int value = (Integer) event.getNewValue();
@@ -292,7 +301,7 @@ public class App {
         });
 
         //5. start the Swing worker thread
-        worker.execute();
+        worker.executeUI();
     }
 
     /**
