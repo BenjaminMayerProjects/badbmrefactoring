@@ -58,7 +58,7 @@ public class DiskWorker implements Callable {
           We 'got here' because: 1: End-user clicked 'Start' on the benchmark UI,
           which triggered the start-benchmark event associated with the App::startBenchmark()
           method.  2: startBenchmark() then instantiated a DiskWorker, and called
-          its (super class's) execute() method, causing Swing to eventually
+          its (super class's) execute() method, causing our user interface to eventually
           call this doInBackground() method.
          */
         Logger.getLogger(App.class.getName()).log(Level.INFO, "*** New worker thread started ***");
@@ -301,7 +301,7 @@ public class DiskWorker implements Callable {
      * published to Swing. For my info, watch Professor Cohen's video -
      * Module_6_RefactorBadBM Swing_DiskWorker_Tutorial.mp4
      * @param markList a list of DiskMark objects reflecting some completed benchmarks
-     */
+     **/
 
 
 
