@@ -1,5 +1,9 @@
-package edu.touro.mco152.bm;
+package edu.touro.mco152.bm.Commands;
 
+import edu.touro.mco152.bm.App;
+import edu.touro.mco152.bm.DiskMark;
+import edu.touro.mco152.bm.UserExperienceInterface;
+import edu.touro.mco152.bm.Util;
 import edu.touro.mco152.bm.persist.DiskRun;
 import edu.touro.mco152.bm.persist.EM;
 import edu.touro.mco152.bm.ui.Gui;
@@ -15,9 +19,10 @@ import java.util.logging.Logger;
 import static edu.touro.mco152.bm.App.*;
 import static edu.touro.mco152.bm.DiskMark.MarkType.WRITE;
 
-public class WriteCommand {
+public class WriteOperation {
 
-    public static void command(UserExperienceInterface userInterface) {
+    public static void readOperation(UserExperienceInterface userInterface, int numOfMarks, int numOfBlocks,
+                                     int sizeOfBlocks, DiskRun.BlockSequence sequence) {
         // declare local vars formerly in DiskWorker
 
         int wUnitsComplete = 0,
@@ -41,10 +46,10 @@ public class WriteCommand {
         int startFileNum = App.nextMarkNumber;
 
 
-        DiskRun run = new DiskRun(DiskRun.IOMode.WRITE, App.blockSequence);
-        run.setNumMarks(App.numOfMarks);
-        run.setNumBlocks(App.numOfBlocks);
-        run.setBlockSize(App.blockSizeKb);
+        DiskRun run = new DiskRun(DiskRun.IOMode.WRITE, blockSequence);
+        run.setNumMarks(numOfMarks);
+        run.setNumBlocks(numOfBlocks);
+        run.setBlockSize(sizeOfBlocks);
         run.setTxSize(App.targetTxSizeKb());
         run.setDiskInfo(Util.getDiskInfo(dataDir));
 
@@ -64,7 +69,7 @@ public class WriteCommand {
               that keeps writing data (in its own loop - for specified # of blocks). Each 'Mark' is timed
               and is reported to the GUI for display as each Mark completes.
              */
-        for (int m = startFileNum; m < startFileNum + App.numOfMarks && !userInterface.isCancelledUI(); m++) {
+        for (int m = startFileNum; m < startFileNum + numOfMarks && !userInterface.isCancelledUI(); m++) {
 
             if (App.multiFile) {
                 testFile = new File(dataDir.getAbsolutePath()
@@ -83,7 +88,7 @@ public class WriteCommand {
             try {
                 try (RandomAccessFile rAccFile = new RandomAccessFile(testFile, mode)) {
                     for (int b = 0; b < numOfBlocks; b++) {
-                        if (App.blockSequence == DiskRun.BlockSequence.RANDOM) {
+                        if (blockSequence == DiskRun.BlockSequence.RANDOM) {
                             int rLoc = Util.randInt(0, numOfBlocks - 1);
                             rAccFile.seek((long) rLoc * blockSize);
                         } else {
