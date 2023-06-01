@@ -21,15 +21,17 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class CommandTests {
     @Test
-    void writeTest()
-    {
+    void writeTest() {
         setupDefaultAsPerProperties();
         BMInvoker testInvoker = new BMInvoker();
         WriteCommand writeCommand = new WriteCommand(new MainTest(), 128, 2048, SEQUENTIAL, 25);
         testInvoker.setCommand(writeCommand);
         assertTrue(testInvoker.runCommand());
-
+        assertEquals(100, MainTest.currentPercentComplete);
     }
+
+
+
     @Test
     void ReadTest()
     {

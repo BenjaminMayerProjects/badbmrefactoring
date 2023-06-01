@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * @implement UIInterface
  */
 public class MainTest implements UserExperienceInterface{
-    private int currentPercentComplete;
+    public static int currentPercentComplete;
 
     public MainTest() {
         setupDefaultAsPerProperties();
@@ -104,7 +104,9 @@ public class MainTest implements UserExperienceInterface{
         @Override
         public void executeUI() {
             try {
-                new DiskWorker(new MainTest()).call();
+                DiskWorker test = new DiskWorker(new MainTest());
+                test.call();
+
                 assertEquals(100, currentPercentComplete);
             } catch (Exception e) {
                 e.printStackTrace();
