@@ -10,9 +10,10 @@ public class BMInvoker {
     {
 
     }
-    public void runCommand()
+    public boolean runCommand()
     {
         command.execute();
+        return true;
     }
 
     public void setCommand(BMCommands command) {
