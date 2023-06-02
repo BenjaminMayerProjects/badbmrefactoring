@@ -19,7 +19,7 @@ import java.util.logging.Logger;
 import static edu.touro.mco152.bm.App.*;
 import static edu.touro.mco152.bm.DiskMark.MarkType.WRITE;
 
-public class WriteCommand implements BMCommands{
+public class WriteCommand {
     private int wUnitsComplete = 0,
             rUnitsComplete = 0,
             unitsComplete;

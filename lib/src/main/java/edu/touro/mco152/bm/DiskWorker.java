@@ -1,6 +1,5 @@
 package edu.touro.mco152.bm;
 
-import edu.touro.mco152.bm.commands.BMInvoker;
 import edu.touro.mco152.bm.commands.ReadCommand;
 import edu.touro.mco152.bm.commands.WriteCommand;
 import edu.touro.mco152.bm.persist.DiskRun;
@@ -68,32 +67,46 @@ public class DiskWorker implements Callable {
         msg("Running readTest " + App.readTest + "   writeTest " + App.writeTest);
         msg("num files: " + App.numOfMarks + ", num blks: " + App.numOfBlocks
                 + ", blk size (kb): " + App.blockSizeKb + ", blockSequence: " + App.blockSequence);
-        /**
-         * To utilize our Command Pattern, we shall initialize our Invoker, and our commands. This initialization
-         * will only be done once per running of DiskWorker.
-         */
-        BMInvoker invoker = new BMInvoker();
-        ReadCommand readCommand = new ReadCommand(userInterface, numOfBlocks, blockSizeKb, blockSequence, numOfMarks);
-        WriteCommand writeCommand = new WriteCommand(userInterface, numOfBlocks, blockSizeKb, blockSequence, numOfMarks);
-
-
 
         /*
           init local vars that keep track of benchmarks, and a large read/write buffer
          */
+        int wUnitsComplete = 0, rUnitsComplete = 0, unitsComplete;
+        int wUnitsTotal = App.writeTest ? numOfBlocks * numOfMarks : 0;
+        int rUnitsTotal = App.readTest ? numOfBlocks * numOfMarks : 0;
+        int unitsTotal = wUnitsTotal + rUnitsTotal;
+        float percentComplete;
+
+        int blockSize = blockSizeKb * KILOBYTE;
+        byte[] blockArr = new byte[blockSize];
+        for (int b = 0; b < blockArr.length; b++) {
+            if (b % 2 == 0) {
+                blockArr[b] = (byte) 0xFF;
+            }
+        }
+
+        DiskMark wMark, rMark;  // declare vars that will point to objects used to pass progress to UI
+
         Gui.updateLegend();  // init chart legend info
 
         if (App.autoReset) {
             App.resetTestData();
             Gui.resetTestData();
         }
+
+        int startFileNum = App.nextMarkNumber;
+
         /*
           The GUI allows a Write, Read, or both types of BMs to be started. They are done serially.
          */
         if (App.writeTest) {
-            invoker.setCommand(writeCommand);
-            invoker.runCommand();
+            WriteCommand writeCommand = new WriteCommand(userInterface, App.numOfBlocks, blockSizeKb, blockSequence, numOfMarks);
+            writeCommand.execute();
             // END outer loop for specified duration (number of 'marks') for WRITE benchmark
+
+            /*
+              Persist info about the Write BM Run (e.g. into Derby Database) and add it to a GUI panel
+             */
 
 
         /*
@@ -117,8 +130,8 @@ public class DiskWorker implements Callable {
 
         // Same as above, just for Read operations instead of Writes.
         if (App.readTest) {
-            invoker.setCommand(readCommand);
-            invoker.runCommand();
+            ReadCommand readCommand = new ReadCommand(userInterface, App.numOfBlocks, blockSizeKb, blockSequence, numOfMarks);
+            readCommand.execute();
 
         }
         App.nextMarkNumber += App.numOfMarks;

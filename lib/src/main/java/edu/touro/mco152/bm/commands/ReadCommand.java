@@ -22,7 +22,7 @@ import static edu.touro.mco152.bm.App.*;
 import static edu.touro.mco152.bm.App.msg;
 import static edu.touro.mco152.bm.DiskMark.MarkType.READ;
 
-public class ReadCommand implements BMCommands{
+public class ReadCommand {
     private int wUnitsComplete = 0,
             rUnitsComplete = 0,
             unitsComplete;
