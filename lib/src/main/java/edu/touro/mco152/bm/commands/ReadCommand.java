@@ -19,12 +19,6 @@ import static edu.touro.mco152.bm.App.*;
 import static edu.touro.mco152.bm.App.msg;
 import static edu.touro.mco152.bm.DiskMark.MarkType.READ;
 
-/**
- * This is the refactored Read method. It implements our command interface. It helps
- * fulfill SRP for the DiskWorker class
- *
- */
-
 public class ReadCommand implements BMCommands{
     private int wUnitsComplete = 0,
             rUnitsComplete = 0,

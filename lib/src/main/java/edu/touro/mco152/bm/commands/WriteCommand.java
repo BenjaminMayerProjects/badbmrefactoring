@@ -16,12 +16,6 @@ import java.util.logging.Logger;
 import static edu.touro.mco152.bm.App.*;
 import static edu.touro.mco152.bm.DiskMark.MarkType.WRITE;
 
-
-/**
- * This is the Write Class for our command pattern. Like its Read counterpart, it consists of code
- * factored out of DiskWorker
- *
- */
 public class WriteCommand implements BMCommands{
     private int wUnitsComplete = 0,
             rUnitsComplete = 0,
