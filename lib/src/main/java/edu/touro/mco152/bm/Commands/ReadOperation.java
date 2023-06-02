@@ -1,4 +1,4 @@
-package edu.touro.mco152.bm.commands;
+package edu.touro.mco152.bm.Commands;
 
 import edu.touro.mco152.bm.App;
 import edu.touro.mco152.bm.DiskMark;
@@ -9,59 +9,46 @@ import edu.touro.mco152.bm.persist.EM;
 import edu.touro.mco152.bm.ui.Gui;
 import jakarta.persistence.EntityManager;
 
-import javax.swing.*;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.Date;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import static edu.touro.mco152.bm.App.*;
 import static edu.touro.mco152.bm.App.msg;
 import static edu.touro.mco152.bm.DiskMark.MarkType.READ;
 
-public class ReadCommand {
-    private int wUnitsComplete = 0,
-            rUnitsComplete = 0,
-            unitsComplete;
+public class ReadOperation {
 
-    private int wUnitsTotal;
-    private int rUnitsTotal;
-    private int unitsTotal;
+    public static boolean command(UserExperienceInterface userInterface, int numOfMarks, int numOfBlocks,
+                                                  int sizeOfBlocks, DiskRun.BlockSequence sequence) {
+        // declare local vars formerly in DiskWorker
 
-    private float percentComplete;
+        int rUnitsComplete = 0,
+                wUnitsComplete = 0,
+                unitsComplete;
 
-    private int blockSize = blockSizeKb * KILOBYTE;
-    private byte[] blockArr = new byte[blockSize];
+        int wUnitsTotal = App.writeTest ? numOfBlocks * numOfMarks : 0;
+        int rUnitsTotal = App.readTest ? numOfBlocks * numOfMarks : 0;
+        int unitsTotal = wUnitsTotal + rUnitsTotal;
+        float percentComplete;
 
-    private DiskMark rMark;
-    private int startFileNum = App.nextMarkNumber;
-    private UserExperienceInterface userInterface;
-    private int numOfBlocks;
-    private int sizeOfBlocks;
-    private DiskRun.BlockSequence sequence;
-    private int numOfMarks;
+        int blockSize = blockSizeKb*KILOBYTE;
+        byte [] blockArr = new byte [blockSize];
+        for (int b=0; b<blockArr.length; b++) {
+            if (b%2==0) {
+                blockArr[b]=(byte)0xFF;
+            }
+        }
 
-    public ReadCommand(UserExperienceInterface userInterface, int numOfBlocks, int sizeOfBlocks,
-                        DiskRun.BlockSequence sequence, int numOfMarks) {
-        this.userInterface = userInterface;
-        this.numOfBlocks = numOfBlocks;
-        this.sizeOfBlocks = sizeOfBlocks;
-        this.sequence = sequence;
-        this.numOfMarks = numOfMarks;
-        wUnitsTotal = App.writeTest ? numOfBlocks * numOfMarks : 0;
-        rUnitsTotal = App.readTest ? numOfBlocks * numOfMarks : 0;
-        unitsTotal = wUnitsTotal + rUnitsTotal;
-    }
-    public boolean execute()
-    {
+        DiskMark rMark;
+        int startFileNum = App.nextMarkNumber;
+
 
         DiskRun run = new DiskRun(DiskRun.IOMode.READ, App.blockSequence);
-        run.setNumMarks(App.numOfMarks);
-        run.setNumBlocks(App.numOfBlocks);
-        run.setBlockSize(App.blockSizeKb);
+        run.setNumMarks(numOfMarks);
+        run.setNumBlocks(numOfBlocks);
+        run.setBlockSize(sizeOfBlocks);
         run.setTxSize(App.targetTxSizeKb());
         run.setDiskInfo(Util.getDiskInfo(dataDir));
 
@@ -70,7 +57,7 @@ public class ReadCommand {
         Gui.chartPanel.getChart().getTitle().setVisible(true);
         Gui.chartPanel.getChart().getTitle().setText(run.getDiskInfo());
 
-        for (int m = startFileNum; m < startFileNum + App.numOfMarks && !userInterface.isCancelledUI(); m++) {
+        for (int m = startFileNum; m < startFileNum + numOfMarks && !userInterface.isCancelledUI(); m++) {
 
             if (App.multiFile) {
                 testFile = new File(dataDir.getAbsolutePath()
@@ -83,7 +70,7 @@ public class ReadCommand {
 
             try (RandomAccessFile rAccFile = new RandomAccessFile(testFile, "r")) {
                 for (int b = 0; b < numOfBlocks; b++) {
-                    if (App.blockSequence == DiskRun.BlockSequence.RANDOM) {
+                    if (sequence == DiskRun.BlockSequence.RANDOM) {
                         int rLoc = Util.randInt(0, numOfBlocks - 1);
                         rAccFile.seek((long) rLoc * blockSize);
                     } else {
@@ -124,6 +111,6 @@ public class ReadCommand {
         em.getTransaction().commit();
 
         Gui.runPanel.addRun(run);
-        return true;
+        return false;
     }
 }

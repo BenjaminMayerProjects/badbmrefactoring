@@ -1,26 +1,14 @@
 package edu.touro.mco152.bm;
 
-import edu.touro.mco152.bm.commands.ReadCommand;
-import edu.touro.mco152.bm.commands.WriteCommand;
-import edu.touro.mco152.bm.persist.DiskRun;
-import edu.touro.mco152.bm.persist.EM;
+import edu.touro.mco152.bm.Commands.*;
 import edu.touro.mco152.bm.ui.Gui;
 
-import jakarta.persistence.EntityManager;
 import javax.swing.*;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.util.Date;
-import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static edu.touro.mco152.bm.App.*;
-import static edu.touro.mco152.bm.DiskMark.MarkType.READ;
-import static edu.touro.mco152.bm.DiskMark.MarkType.WRITE;
 
 /**
  * Run the disk benchmarking as a Swing-compliant thread (only one of these threads can run at
@@ -67,6 +55,10 @@ public class DiskWorker implements Callable {
         msg("Running readTest " + App.readTest + "   writeTest " + App.writeTest);
         msg("num files: " + App.numOfMarks + ", num blks: " + App.numOfBlocks
                 + ", blk size (kb): " + App.blockSizeKb + ", blockSequence: " + App.blockSequence);
+        BMOperatonInvoker invoker = new BMOperatonInvoker();
+        ReadCommand readCommand = new ReadCommand(userInterface, numOfMarks, numOfBlocks, blockSizeKb, blockSequence );
+        WriteCommand writeCommand = new WriteCommand(userInterface, numOfMarks, numOfBlocks, blockSizeKb, blockSequence );
+
 
         /*
           init local vars that keep track of benchmarks, and a large read/write buffer
@@ -85,7 +77,6 @@ public class DiskWorker implements Callable {
             }
         }
 
-        DiskMark wMark, rMark;  // declare vars that will point to objects used to pass progress to UI
 
         Gui.updateLegend();  // init chart legend info
 
@@ -100,15 +91,9 @@ public class DiskWorker implements Callable {
           The GUI allows a Write, Read, or both types of BMs to be started. They are done serially.
          */
         if (App.writeTest) {
-            WriteCommand writeCommand = new WriteCommand(userInterface, App.numOfBlocks, blockSizeKb, blockSequence, numOfMarks);
-            writeCommand.execute();
+            invoker.setCommand(writeCommand);
+            invoker.runCommand();
             // END outer loop for specified duration (number of 'marks') for WRITE benchmark
-
-            /*
-              Persist info about the Write BM Run (e.g. into Derby Database) and add it to a GUI panel
-             */
-
-
         /*
           Most benchmarking systems will try to do some cleanup in between 2 benchmark operations to
           make it more 'fair'. For example a networking benchmark might close and re-open sockets,
@@ -130,28 +115,14 @@ public class DiskWorker implements Callable {
 
         // Same as above, just for Read operations instead of Writes.
         if (App.readTest) {
-            ReadCommand readCommand = new ReadCommand(userInterface, App.numOfBlocks, blockSizeKb, blockSequence, numOfMarks);
-            readCommand.execute();
-
+            invoker.setCommand(readCommand);
+            invoker.runCommand();
         }
         App.nextMarkNumber += App.numOfMarks;
         return true;
     }
 
-    /**
-     * Process a list of 'chunks' that have been processed, ie that our thread has previously
-     * published to Swing. For my info, watch Professor Cohen's video -
-     * Module_6_RefactorBadBM Swing_DiskWorker_Tutorial.mp4
-     * @param markList a list of DiskMark objects reflecting some completed benchmarks
-     **/
 
-
-
-    /**
-     * Called when doInBackGround method of SwingWorker successfully or unsuccessfully finishes or is aborted.
-     * This method is called by Swing and has access to the get method within it's scope, which returns the computed
-     * result of the doInBackground method.
-     */
 
 
     public Boolean getLastStatus() {

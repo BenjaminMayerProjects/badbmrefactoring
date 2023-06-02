@@ -1,4 +1,4 @@
-package edu.touro.mco152.bm.commands;
+package edu.touro.mco152.bm.Commands;
 
 import edu.touro.mco152.bm.App;
 import edu.touro.mco152.bm.DiskMark;
@@ -19,57 +19,37 @@ import java.util.logging.Logger;
 import static edu.touro.mco152.bm.App.*;
 import static edu.touro.mco152.bm.DiskMark.MarkType.WRITE;
 
-public class WriteCommand {
-    private int wUnitsComplete = 0,
-            rUnitsComplete = 0,
-            unitsComplete;
+public class WriteOperation {
 
-    private int wUnitsTotal;
-    private int rUnitsTotal;
-    private int unitsTotal;
+    public static void readOperation(UserExperienceInterface userInterface, int numOfMarks, int numOfBlocks,
+                                     int sizeOfBlocks, DiskRun.BlockSequence sequence) {
+        // declare local vars formerly in DiskWorker
 
-    private float percentComplete;
+        int wUnitsComplete = 0,
+                rUnitsComplete = 0,
+                unitsComplete;
 
-    private int blockSize = blockSizeKb * KILOBYTE;
-    private byte[] blockArr = new byte[blockSize];
+        int wUnitsTotal = App.writeTest ? numOfBlocks * numOfMarks : 0;
+        int rUnitsTotal = App.readTest ? numOfBlocks * numOfMarks : 0;
+        int unitsTotal = wUnitsTotal + rUnitsTotal;
+        float percentComplete;
 
-    private DiskMark wMark;
-    private int startFileNum = App.nextMarkNumber;
-    private UserExperienceInterface userInterface;
-    private int numOfBlocks;
-    private int sizeOfBlocks;
-    private DiskRun.BlockSequence sequence;
-    private int numOfMarks;
-
-    public WriteCommand(UserExperienceInterface userInterface, int numOfBlocks, int sizeOfBlocks,
-                        DiskRun.BlockSequence sequence, int numOfMarks) {
-        this.userInterface = userInterface;
-        this.numOfBlocks = numOfBlocks;
-        this.sizeOfBlocks = sizeOfBlocks;
-        this.sequence = sequence;
-        this.numOfMarks = numOfMarks;
-        wUnitsTotal = App.writeTest ? numOfBlocks * numOfMarks : 0;
-        rUnitsTotal = App.readTest ? numOfBlocks * numOfMarks : 0;
-        unitsTotal = wUnitsTotal + rUnitsTotal;
-    }
-
-
-
-    public boolean execute() {
+        int blockSize = blockSizeKb * KILOBYTE;
+        byte[] blockArr = new byte[blockSize];
         for (int b = 0; b < blockArr.length; b++) {
             if (b % 2 == 0) {
                 blockArr[b] = (byte) 0xFF;
             }
         }
-        // declare local vars formerly in DiskWorker
+
+        DiskMark wMark;
+        int startFileNum = App.nextMarkNumber;
 
 
-
-
-        DiskRun run = new DiskRun(DiskRun.IOMode.WRITE, App.blockSequence);
-        run.setNumMarks(App.numOfMarks);
-        run.setNumBlocks(App.numOfBlocks);
-        run.setBlockSize(App.blockSizeKb);
+        DiskRun run = new DiskRun(DiskRun.IOMode.WRITE, blockSequence);
+        run.setNumMarks(numOfMarks);
+        run.setNumBlocks(numOfBlocks);
+        run.setBlockSize(sizeOfBlocks);
         run.setTxSize(App.targetTxSizeKb());
         run.setDiskInfo(Util.getDiskInfo(dataDir));
 
@@ -89,7 +69,7 @@ public class WriteCommand {
               that keeps writing data (in its own loop - for specified # of blocks). Each 'Mark' is timed
               and is reported to the GUI for display as each Mark completes.
              */
-        for (int m = startFileNum; m < startFileNum + App.numOfMarks && !userInterface.isCancelledUI(); m++) {
+        for (int m = startFileNum; m < startFileNum + numOfMarks && !userInterface.isCancelledUI(); m++) {
 
             if (App.multiFile) {
                 testFile = new File(dataDir.getAbsolutePath()
@@ -108,7 +88,7 @@ public class WriteCommand {
             try {
                 try (RandomAccessFile rAccFile = new RandomAccessFile(testFile, mode)) {
                     for (int b = 0; b < numOfBlocks; b++) {
-                        if (App.blockSequence == DiskRun.BlockSequence.RANDOM) {
+                        if (blockSequence == DiskRun.BlockSequence.RANDOM) {
                             int rLoc = Util.randInt(0, numOfBlocks - 1);
                             rAccFile.seek((long) rLoc * blockSize);
                         } else {
@@ -160,7 +140,6 @@ public class WriteCommand {
         em.getTransaction().commit();
 
         Gui.runPanel.addRun(run);
-        return true;
     }
 
 }
