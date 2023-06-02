@@ -1,27 +1,25 @@
-package edu.touro.mco152.bm.Commands;
+package edu.touro.mco152.bm;
 
-import edu.touro.mco152.bm.App;
-import edu.touro.mco152.bm.DiskMark;
-import edu.touro.mco152.bm.UserExperienceInterface;
-import edu.touro.mco152.bm.Util;
 import edu.touro.mco152.bm.persist.DiskRun;
 import edu.touro.mco152.bm.persist.EM;
 import edu.touro.mco152.bm.ui.Gui;
 import jakarta.persistence.EntityManager;
 
+import javax.swing.*;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.Date;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static edu.touro.mco152.bm.App.*;
 import static edu.touro.mco152.bm.App.msg;
 import static edu.touro.mco152.bm.DiskMark.MarkType.READ;
 
-public class ReadOperation {
-
-    public static boolean command(UserExperienceInterface userInterface, int numOfMarks, int numOfBlocks,
-                                                  int sizeOfBlocks, DiskRun.BlockSequence sequence) {
+public class ReadCommand {
+    public static boolean command(UserExperienceInterface userInterface) {
         // declare local vars formerly in DiskWorker
 
         int rUnitsComplete = 0,
@@ -46,9 +44,9 @@ public class ReadOperation {
 
 
         DiskRun run = new DiskRun(DiskRun.IOMode.READ, App.blockSequence);
-        run.setNumMarks(numOfMarks);
-        run.setNumBlocks(numOfBlocks);
-        run.setBlockSize(sizeOfBlocks);
+        run.setNumMarks(App.numOfMarks);
+        run.setNumBlocks(App.numOfBlocks);
+        run.setBlockSize(App.blockSizeKb);
         run.setTxSize(App.targetTxSizeKb());
         run.setDiskInfo(Util.getDiskInfo(dataDir));
 
@@ -57,7 +55,7 @@ public class ReadOperation {
         Gui.chartPanel.getChart().getTitle().setVisible(true);
         Gui.chartPanel.getChart().getTitle().setText(run.getDiskInfo());
 
-        for (int m = startFileNum; m < startFileNum + numOfMarks && !userInterface.isCancelledUI(); m++) {
+        for (int m = startFileNum; m < startFileNum + App.numOfMarks && !userInterface.isCancelledUI(); m++) {
 
             if (App.multiFile) {
                 testFile = new File(dataDir.getAbsolutePath()
@@ -70,7 +68,7 @@ public class ReadOperation {
 
             try (RandomAccessFile rAccFile = new RandomAccessFile(testFile, "r")) {
                 for (int b = 0; b < numOfBlocks; b++) {
-                    if (sequence == DiskRun.BlockSequence.RANDOM) {
+                    if (App.blockSequence == DiskRun.BlockSequence.RANDOM) {
                         int rLoc = Util.randInt(0, numOfBlocks - 1);
                         rAccFile.seek((long) rLoc * blockSize);
                     } else {
