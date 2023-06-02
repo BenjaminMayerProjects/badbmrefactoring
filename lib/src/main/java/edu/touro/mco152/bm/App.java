@@ -255,7 +255,7 @@ public class App  {
 
         //1. check that there isn't already a worker in progress
         if (state == State.DISK_TEST_STATE) {
-           // if (!worker.isCancelledUI() && !worker.done();) {
+            //if (!worker.isCancelled() && !worker.isDone()) {
             msg("Test in progress, aborting...");
             return;
             //}

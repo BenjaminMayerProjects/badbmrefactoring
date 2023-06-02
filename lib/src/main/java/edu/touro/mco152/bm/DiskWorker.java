@@ -75,6 +75,9 @@ public class DiskWorker implements Callable {
         BMInvoker invoker = new BMInvoker();
         ReadCommand readCommand = new ReadCommand(userInterface, numOfBlocks, blockSizeKb, blockSequence, numOfMarks);
         WriteCommand writeCommand = new WriteCommand(userInterface, numOfBlocks, blockSizeKb, blockSequence, numOfMarks);
+
+
+
         /*
           init local vars that keep track of benchmarks, and a large read/write buffer
          */
@@ -90,6 +93,16 @@ public class DiskWorker implements Callable {
         if (App.writeTest) {
             invoker.setCommand(writeCommand);
             invoker.runCommand();
+            // END outer loop for specified duration (number of 'marks') for WRITE benchmark
+
+
+        /*
+          Most benchmarking systems will try to do some cleanup in between 2 benchmark operations to
+          make it more 'fair'. For example a networking benchmark might close and re-open sockets,
+          a memory benchmark might clear or invalidate the Op Systems TLB or other caches, etc.
+         */
+
+            // try renaming all files to clear catch
         }
         if (App.readTest && App.writeTest && !userInterface.isCancelledUI()) {
             JOptionPane.showMessageDialog(Gui.mainFrame,
@@ -126,7 +139,12 @@ public class DiskWorker implements Callable {
      * This method is called by Swing and has access to the get method within it's scope, which returns the computed
      * result of the doInBackground method.
      */
+
+
     public Boolean getLastStatus() {
         return lastStatus;
     }
+
+
+
 }

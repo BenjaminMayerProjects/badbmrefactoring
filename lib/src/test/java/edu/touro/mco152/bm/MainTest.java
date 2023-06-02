@@ -4,6 +4,7 @@ package edu.touro.mco152.bm;
 import edu.touro.mco152.bm.ui.Gui;
 import edu.touro.mco152.bm.ui.MainFrame;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
 
 import java.beans.PropertyChangeListener;
 import java.io.File;
@@ -61,7 +62,6 @@ public class MainTest implements UserExperienceInterface{
             }
         } else {
             App.dataDir.mkdirs(); // create data dir if not already present
-            App.worker = new MainTest();
         }
     }
 

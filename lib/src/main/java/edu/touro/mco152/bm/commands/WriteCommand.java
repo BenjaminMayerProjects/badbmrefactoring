@@ -1,6 +1,9 @@
 package edu.touro.mco152.bm.commands;
 
-import edu.touro.mco152.bm.*;
+import edu.touro.mco152.bm.App;
+import edu.touro.mco152.bm.DiskMark;
+import edu.touro.mco152.bm.UserExperienceInterface;
+import edu.touro.mco152.bm.Util;
 import edu.touro.mco152.bm.persist.DiskRun;
 import edu.touro.mco152.bm.persist.EM;
 import edu.touro.mco152.bm.ui.Gui;
@@ -120,11 +123,6 @@ public class WriteCommand implements BMCommands{
                             /*
                               Report to GUI what percentage level of Entire BM (#Marks * #Blocks) is done.
                              */
-                        if(worker == null)
-                        {
-                            worker = userInterface;
-                            worker.setCallable(new DiskWorker(userInterface));
-                        }
                         worker.setProgressUI((int) percentComplete);
                     }
                 }
